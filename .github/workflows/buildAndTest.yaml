@@ -1,0 +1,28 @@
+name: Build And Test
+
+on: [push, pull_request]
+
+jobs:
+  buildAndTest:
+    # Only run this on the base repo
+#    if: startsWith(github.repository, 'GoogleCloudPlatform/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Install Java 8 for cross-compilation support. Setting it up before
+      # Java 11 means it comes later in $PATH (because of how setup-java works)
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build
+        run: ./mvnw compile
+
+      - name: Unit Tests
+        run: ./mvnw test --fail-at-end
