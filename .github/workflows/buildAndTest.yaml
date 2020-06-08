@@ -3,41 +3,41 @@ name: Build And Test
 on: [push, pull_request]
 
 jobs:
-  unitTests:
-    # We want to run on external PRs, but not on our own internal PRs as they'll be run
-    # by the push to the branch.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [8, 11, 14]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-    - uses: actions/cache@v1
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-
-    - name: Unit Tests
-      run: |
-        ./mvnw \
-          --fail-at-end \
-          --batch-mode \
-          --threads 1.5C \
-          --activate-profiles full-checkstyle \
-          --show-version \
-          --define maven.javadoc.skip=true \
-          test
-    - name: Archive logs
-      uses: actions/upload-artifact@v2
-      with:
-        name: Test logs - ${{ matrix.it}}
-        path: "**/target/surefire-reports/*"
+#  unitTests:
+#    # We want to run on external PRs, but not on our own internal PRs as they'll be run
+#    # by the push to the branch.
+#    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        java: [8, 11, 14]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/setup-java@v1
+#      with:
+#        java-version: ${{ matrix.java }}
+#    - uses: actions/cache@v1
+#      with:
+#        path: ~/.m2/repository
+#        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#        restore-keys: |
+#          ${{ runner.os }}-maven-
+#
+#    - name: Unit Tests
+#      run: |
+#        ./mvnw \
+#          --fail-at-end \
+#          --batch-mode \
+#          --threads 1.5C \
+#          --activate-profiles full-checkstyle \
+#          --show-version \
+#          --define maven.javadoc.skip=true \
+#          test
+#    - name: Archive logs
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: Test logs - ${{ matrix.it}}
+#        path: "**/target/surefire-reports/*"
 
   integrationTests:
     if: |
@@ -47,19 +47,19 @@ jobs:
     strategy:
       matrix:
         it:
-          - bigquery
-          - config
-          - datastore
-          - firestore
-          - logging
-          - kotlin
-          - pubsub
-          # - pubsub-emulator # not sure if this actually does anything?
-          - secretmanager
-          - spanner
-          - storage
-          - trace
-          - vision
+#          - bigquery
+#          - config
+#          - datastore
+#          - firestore
+#          - logging
+#          - kotlin
+#          - pubsub
+          - pubsub-emulator
+#          - secretmanager
+#          - spanner
+#          - storage
+#          - trace
+#          - vision
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
@@ -78,14 +78,15 @@ jobs:
           project_id: spring-cloud-gcp-ci
           service_account_key: ${{ secrets.SPRING_CLOUD_GCP_CI_SA_KEY }}
           export_default_credentials: true
-      - name: install pubsub-emulator
+      - name: Install pubsub-emulator
         if: ${{ matrix.it == 'pubsub-emulator' }}
         run: |
-          gcloud components install pubsub-emulator && \
+          gcloud components install pubsub-emulator beta && \
             gcloud components update
       # Some integration tests (pubsub) fork their own mvn instance, which needs these
       # libraries to be installed to the local repo.
       - name: Mvn install
+        if: ${{ matrix.it == 'pubsub' }}
         run: |
           ./mvnw \
             --batch-mode \
