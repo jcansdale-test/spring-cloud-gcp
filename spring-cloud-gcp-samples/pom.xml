@@ -25,6 +25,14 @@
 		<spring-cloud-build-tools.version>3.0.0-SNAPSHOT</spring-cloud-build-tools.version>
 		<puppycrawl-tools-checkstyle.version>8.32</puppycrawl-tools-checkstyle.version>
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
+		<skip.surefire.tests>false</skip.surefire.tests>
+		<skip.failsafe.tests>true</skip.failsafe.tests>
+		<integration-test.pattern>**/*IntegrationTest*</integration-test.pattern>
+		<maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+		<maven-surefire-report-plugin.version>${maven-surefire-plugin.version}</maven-surefire-report-plugin.version>
+		<maven-failsafe-plugin.version>${maven-surefire-plugin.version}</maven-failsafe-plugin.version>
+		<maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+		<maven-site-plugin.verison>3.9.0</maven-site-plugin.verison>
 	</properties>
 
 	<modules>
@@ -139,12 +147,83 @@
 	</profiles>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven-surefire-plugin.version}</version>
+					<configuration>
+						<argLine>-Xms512m -Xmx512m</argLine>
+						<skip>${skip.surefire.tests}</skip>
+						<excludes>
+							<exclude>${integration-test.pattern}</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>${maven-failsafe-plugin.version}</version>
+					<configuration>
+						<skip>${skip.failsafe.tests}</skip>
+						<includes>
+							<include>${integration-test.pattern}</include>
+						</includes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>${maven-deploy-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-report-plugin</artifactId>
+					<version>${maven-surefire-report-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>${maven-site-plugin.verison}</version>
+					<configuration>
+						<generateReports>false</generateReports>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
 		<plugins>
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<configuration>
 					<skip>true</skip>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+					<!--also set this to link to generated source reports-->
+					<linkXRef>false</linkXRef>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
