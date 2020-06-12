@@ -40,14 +40,16 @@ jobs:
           --batch-mode \
           --threads 1.5C \
           --activate-profiles full-checkstyle \
-          test
+          --define aggregate=true \
+          test \
+          surefire-report:report-only
     - name: Archive logs
       if: always()
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: Test logs - ${{ matrix.it}}
-        path: "**/target/surefire-reports/*"
+        name: Test logs - ${{ matrix.java}}
+        path: "**/target/s**"
 
   integrationTests:
     if: |

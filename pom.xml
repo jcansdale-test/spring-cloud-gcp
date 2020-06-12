@@ -61,6 +61,10 @@
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 		<maven-failsafe-plugin.version>${maven-surefire-plugin.version}</maven-failsafe-plugin.version>
 		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+
+		<maven-surefire-report-plugin.version>${maven-surefire-plugin.version}</maven-surefire-report-plugin.version>
+		<maven-site-plugin.verison>3.9.0</maven-site-plugin.verison>
+		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -245,8 +249,62 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>${maven-site-plugin.verison}</version>
+			</plugin>
 		</plugins>
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<inherited>true</inherited>
+				<version>3.2.0</version>
+				<reportSets>
+					<reportSet>
+						<id>non-aggregate</id>
+						<configuration><skip>true</skip></configuration>
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<configuration><skip>true</skip></configuration>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>${maven-project-info-reports-plugin.version}</version>
+				<reportSets>
+					<reportSet>
+						<id>non-aggregate</id>
+						<reports />
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<reports>
+							<report>index</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${maven-surefire-report-plugin.version}</version>
+<!--				<inherited>false</inherited>-->
+				<configuration>
+<!--					<aggregate>true</aggregate>-->
+					<!--also set this to link to generated source reports-->
+					<linkXRef>false</linkXRef>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<profiles>
 		<profile>
